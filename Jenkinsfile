@@ -65,6 +65,9 @@ pipeline {
                     # Disable strict host checking to prevent SSH prompts blocking the pipeline
                     export GIT_SSH_COMMAND="ssh -i $SSH_KEY -o StrictHostKeyChecking=no"
                     
+                    # Clean up any leftover directory from previous builds
+                    rm -rf manifest-repo
+                    
                     # Clone the manifest repository
                     git clone ${MANIFEST_REPO} manifest-repo
                     cd manifest-repo
