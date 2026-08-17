@@ -40,14 +40,19 @@ pipeline {
         
         stage('Build & Push Docker Image') {
             steps {
-                script {
-                    // Authenticate with the private Docker registry using Jenkins credentials
-                    docker.withRegistry("http://${REGISTRY}", 'jenkins-registry-creds') {
-                        // Build the Dockerfile using the tag we determined in the first stage
-                        def customImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
-                        // Push the new image to the remote registry
-                        customImage.push()
-                    }
+                // Use raw shell commands to build and push the Docker image
+                // (No Docker Pipeline plugin required)
+                withCredentials([usernamePassword(credentialsId: 'jenkins-registry-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh """
+                    # Log in to the private Docker registry
+                    echo \$DOCKER_PASS | docker login http://${REGISTRY} -u \$DOCKER_USER --password-stdin
+                    
+                    # Build the Docker image from the Dockerfile
+                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                    
+                    # Push the newly built image to the registry
+                    docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                    """
                 }
             }
         }
