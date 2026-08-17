@@ -75,6 +75,9 @@ pipeline {
                     # Use 'sed' to search deployment.yaml and replace the old image tag with the newly built one
                     sed -i "s|image: ${IMAGE_NAME}:.*|image: ${IMAGE_NAME}:${IMAGE_TAG}|g" manifests/${TARGET_ENV}/deployment.yaml
                     
+                    # Also update the APP_VERSION environment variable so the web page shows the correct version
+                    sed -i "s|value: \".*\" # APP_VERSION|value: \"${IMAGE_TAG}\" # APP_VERSION|g" manifests/${TARGET_ENV}/deployment.yaml
+                    
                     # Configure git identity for the automated commit
                     git config user.name "Jenkins CI"
                     git config user.email "jenkins@ci.local"
