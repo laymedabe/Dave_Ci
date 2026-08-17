@@ -16,13 +16,17 @@ pipeline {
         stage('Determine Target Environment') {
             steps {
                 script {
-                    // If Jenkins was triggered by a Git Tag (e.g. v1.0.0)
-                    if (env.TAG_NAME) {
-                        env.IMAGE_TAG = env.TAG_NAME
+                    // Use 'git describe' to check if the current commit has a tag on it
+                    def tag = sh(script: 'git describe --exact-match --tags HEAD 2>/dev/null || true', returnStdout: true).trim()
+                    
+                    // If a tag was found (e.g. v1.0.0), this is a Production deployment
+                    if (tag) {
+                        env.IMAGE_TAG = tag
                         env.TARGET_ENV = 'production'
                     } 
-                    // If Jenkins was triggered by a commit to the 'main' branch
-                    else if (env.BRANCH_NAME == 'main') {
+                    // If we are on the 'main' branch, this is a Staging deployment
+                    // GIT_BRANCH is used because regular Pipeline jobs don't set BRANCH_NAME
+                    else if (env.GIT_BRANCH == 'origin/main' || env.GIT_BRANCH == 'main') {
                         env.IMAGE_TAG = "build-${env.BUILD_NUMBER}"
                         env.TARGET_ENV = 'staging'
                     } 
