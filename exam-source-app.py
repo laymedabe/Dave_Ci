@@ -63,8 +63,6 @@ PAGE = """
   API key loaded: <code>{{ key_status }}</code><br>
   Served by pod: <code>{{ hostname }}</code>
 </div>
-<hr>
-<p style="color:#888; font-size:13px;">CI/CD Pipeline by Trainee Dave | Automated with Jenkins & ArgoCD</p>
 """
 
 
